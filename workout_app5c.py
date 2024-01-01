@@ -155,6 +155,11 @@ def index():
     if 'current_split_squat_stage' not in session:
         session['current_split_squat_stage'] = 0  # Default initial stage
 
+    # Retrieve current stages from session
+    current_push_up_stage = session.get('current_push_up_stage', 2)
+    current_pull_up_stage = session.get('current_pull_up_stage', 4)
+    current_split_squat_stage = session.get('current_split_squat_stage', 0)
+    
     today = datetime.now()
 
     # Determine workout type for today without affecting progression stages
