@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Daily Workout</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+        }
+        .workout-container {
+            width: 70%;
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .workout-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .workout-details {
+            margin-bottom: 10px;
+        }
+        .adjust-button {
+            margin-left: 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="workout-container">
+        <div class="workout-header">
+            <h1>Daily Workout</h1>
+            <p>{{ date }}</p>
+            <p><strong>Workout Type:</strong> {{ workout_type }}</p>
+        </div>
+
+        {% if workout_type != 'Rest Day' %}
+            <div class="workout-details">
+                {% if workout_type == 'Full Body' %}
+                    <p><strong>Sets and Reps:</strong> {{ workout_details.sets_reps|join(', ') }}</p>
+                    <p><strong>Exercises:</strong></p>
+                    <p>Push: {{ workout_details.Push }} <span class="adjust-button" onclick="adjustStage('push_up', 'decrement')">-</span> <span class="adjust-button" onclick="adjustStage('push_up', 'increment')">+</span></p>
+                    <p>Pull: {{ workout_details.Pull }} <span class="adjust-button" onclick="adjustStage('pull_up', 'decrement')">-</span> <span class="adjust-button" onclick="adjustStage('pull_up', 'increment')">+</span></p>
+                    <p>Legs: {{ workout_details.Legs }} <span class="adjust-button" onclick="adjustStage('split_squat', 'decrement')">-</span> <span class="adjust-button" onclick="adjustStage('split_squat', 'increment')">+</span></p>
+                {% else %}
+                    <p>{{ workout_details }}</p>
+                {% endif %}
+            </div>
+        {% else %}
+            <p>Enjoy your rest day!</p>
+        {% endif %}
+    </div>
+
+    <script>
+        function adjustStage(exercise, direction) {
+            $.ajax({
+                url: `/adjust_stage/${exercise}/${direction}`,
+                type: 'GET',
+                success: function(response) {
+                    console.log(response);
+                    location.reload(); // Reload the page to update the workout details
+                },
+                error: function(error) {
+                    console.error("Error adjusting stage: ", error);
+                }
+            });
+        }
+    </script>
+</body>
+</html>
