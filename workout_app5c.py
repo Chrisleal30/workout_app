@@ -129,21 +129,38 @@ def get_workout_for_day(day, start_date):
 @app.route('/adjust_stage/<exercise>/<direction>')
 def adjust_stage(exercise, direction):
     # Validate input
-    if exercise not in ['push_up', 'pull_up', 'split_squat']:
+    if exercise not in ['push', 'pull', 'legs']:
         return "Invalid exercise", 400
     if direction not in ['increment', 'decrement']:
         return "Invalid direction", 400
 
+    # Map 'push', 'pull', and 'legs' to their respective progression lists
+    progression_mapping = {
+        'push': push_up_progression,
+        'pull': pull_up_progression,
+        'legs': split_squat_progression
+    }
+
+    # Define the session keys for each exercise type
+    session_keys = {
+        'push': 'current_push_up_stage',
+        'pull': 'current_pull_up_stage',
+        'legs': 'current_split_squat_stage'
+    }
+
     # Adjust the stage
-    key = f'current_{exercise}_stage'
-    current_stage = session.get(key, default_stages[exercise])
+    key = session_keys[exercise]
+    current_stage = session.get(key, 2)  # Default stage can be adjusted as needed
+    progression_list = progression_mapping[exercise]
     if direction == 'increment':
-        current_stage = (current_stage + 1) % len(progression_lists[exercise])
-    else:
-        current_stage = (current_stage - 1) % len(progression_lists[exercise])
+        current_stage = (current_stage + 1) % len(progression_list)
+    elif direction == 'decrement':
+        current_stage = (current_stage - 1) % len(progression_list)
     session[key] = current_stage
+    session.modified = True  # Mark the session as modified
 
     return "Stage adjusted", 200
+
 
 @app.route('/')
 def index():
