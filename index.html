@@ -41,9 +41,9 @@
                 {% if workout_type == 'Full Body' %}
                     <p><strong>Sets and Reps:</strong> {{ workout_details.sets_reps|join(', ') }}</p>
                     <p><strong>Exercises:</strong></p>
-                    <p>Push: {{ workout_details.Push }} <span class="adjust-button" onclick="adjustStage('push_up', 'decrement')">-</span> <span class="adjust-button" onclick="adjustStage('push_up', 'increment')">+</span></p>
-                    <p>Pull: {{ workout_details.Pull }} <span class="adjust-button" onclick="adjustStage('pull_up', 'decrement')">-</span> <span class="adjust-button" onclick="adjustStage('pull_up', 'increment')">+</span></p>
-                    <p>Legs: {{ workout_details.Legs }} <span class="adjust-button" onclick="adjustStage('split_squat', 'decrement')">-</span> <span class="adjust-button" onclick="adjustStage('split_squat', 'increment')">+</span></p>
+                    <p>Push: {{ workout_details.Push }} <span class="adjust-button" onclick="adjustStage('push', 'decrement')">-</span> <span class="adjust-button" onclick="adjustStage('push', 'increment')">+</span></p>
+                    <p>Pull: {{ workout_details.Pull }} <span class="adjust-button" onclick="adjustStage('pull', 'decrement')">-</span> <span class="adjust-button" onclick="adjustStage('pull', 'increment')">+</span></p>
+                    <p>Legs: {{ workout_details.Legs }} <span class="adjust-button" onclick="adjustStage('legs', 'decrement')">-</span> <span class="adjust-button" onclick="adjustStage('legs', 'increment')">+</span></p>
                 {% else %}
                     <p>{{ workout_details }}</p>
                 {% endif %}
@@ -55,17 +55,16 @@
 
     <script>
         function adjustStage(exercise, direction) {
-            $.ajax({
-                url: `/adjust_stage/${exercise}/${direction}`,
-                type: 'GET',
-                success: function(response) {
-                    console.log(response);
-                    location.reload(); // Reload the page to update the workout details
-                },
-                error: function(error) {
-                    console.error("Error adjusting stage: ", error);
-                }
-            });
+            fetch(`/adjust_stage/${exercise}/${direction}`)
+                .then(response => {
+                    if (response.ok) {
+                        console.log("Stage adjusted successfully");
+                        location.reload(); // Reload the page to reflect the changes
+                    } else {
+                        console.error("Failed to adjust stage");
+                    }
+                })
+                .catch(error => console.error("Error adjusting stage: ", error));
         }
     </script>
 </body>
