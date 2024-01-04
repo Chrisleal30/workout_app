@@ -56,7 +56,7 @@ pull_up_progression = [
     "Negative Pull-up", "Jump Pull-up", "Banded Pull-up", "Pull-up"
 ]
 
-split_squat_progression = [
+pistol_squat_progression = [
     "One-leg box squat", "Raised One-leg box squat", 
     "Raised Pistol squat progression (swings)"
 ]
@@ -87,7 +87,7 @@ def get_workout_for_day(day, start_date):
     # Retrieve current stages from session
     current_push_up_stage = session.get('current_push_up_stage', 2)
     current_pull_up_stage = session.get('current_pull_up_stage', 4)
-    current_split_squat_stage = session.get('current_split_squat_stage', 0)
+    current_pistol_squat_stage = session.get('current_pistol_squat_stage', 0)
 
     if workout_type == "Full Body":
         count = count_workout_type_since_start(workout_type, start_date, day)
@@ -101,12 +101,12 @@ def get_workout_for_day(day, start_date):
         for i in range(completed_cycles):
             current_push_up_stage = update_current_stage(current_push_up_stage, push_up_progression)
             current_pull_up_stage = update_current_stage(current_pull_up_stage, pull_up_progression)
-            current_split_squat_stage = update_current_stage(current_split_squat_stage, split_squat_progression)
+            current_pistol_squat_stage = update_current_stage(current_pistol_squat_stage, pistol_squat_progression)
 
         sets_reps = full_body_progression[index]
         push_exercise = push_up_progression[current_push_up_stage]
         pull_exercise = pull_up_progression[current_pull_up_stage]
-        leg_exercise = split_squat_progression[current_split_squat_stage]
+        leg_exercise = pistol_squat_progression[current_pistol_squat_stage]
 
         workout_details = {
             'sets_reps': sets_reps,
@@ -138,14 +138,14 @@ def adjust_stage(exercise, direction):
     progression_mapping = {
         'push': push_up_progression,
         'pull': pull_up_progression,
-        'legs': split_squat_progression
+        'legs': pistol_squat_progression
     }
 
     # Define the session keys for each exercise type
     session_keys = {
         'push': 'current_push_up_stage',
         'pull': 'current_pull_up_stage',
-        'legs': 'current_split_squat_stage'
+        'legs': 'current_pistol_squat_stage'
     }
 
     # Adjust the stage
@@ -169,13 +169,13 @@ def index():
         session['current_push_up_stage'] = 2  # Default initial stage
     if 'current_pull_up_stage' not in session:
         session['current_pull_up_stage'] = 4  # Default initial stage
-    if 'current_split_squat_stage' not in session:
-        session['current_split_squat_stage'] = 0  # Default initial stage
+    if 'current_pistol_squat_stage' not in session:
+        session['current_pistol_squat_stage'] = 0  # Default initial stage
 
     # Retrieve current stages from session
     current_push_up_stage = session.get('current_push_up_stage', 2)
     current_pull_up_stage = session.get('current_pull_up_stage', 4)
-    current_split_squat_stage = session.get('current_split_squat_stage', 0)
+    current_pistol_squat_stage = session.get('current_pistol_squat_stage', 0)
     
     today = datetime.now()
 
@@ -195,7 +195,7 @@ def index():
                            workout_details=workout_details,
                            current_push_up_stage=current_push_up_stage,
                            current_pull_up_stage=current_pull_up_stage,
-                           current_split_squat_stage=current_split_squat_stage)
+                           current_pistol_squat_stage=current_pistol_squat_stage)
 
 if __name__ == '__main__':
     app.run()
