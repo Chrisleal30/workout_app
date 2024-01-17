@@ -43,12 +43,17 @@
         <h2>Today's Workout</h2>
         <p><strong>Date:</strong> {{ date }}</p>
         <p><strong>Type:</strong> {{ workout_type }}</p>
-        <p><strong>Sets and Reps:</strong> {{ workout_details.sets_reps }}</p>
-        <h3>Exercise Breakdown:</h3>
-        <p>Push Exercise: {{ workout_details.Push }}</p>
-        <p>Pull Exercise: {{ workout_details.Pull }}</p>
-        <p>Leg Exercise: {{ workout_details.Legs }}</p>
+        {% if workout_type == "Rest Day" %}
+            <p>Good Work</p>
+        {% elif workout_type == 'Endurance' %}
+            <p><strong>Exercise:</strong> {{ workout_details }}<p>
+        {% else %}
+            <p><strong>Sets and Reps:</strong> {{ workout_details.sets_reps }}</p>
+            <h3>Exercise Breakdown:</h3>
+            <p>Push Exercise: {{ workout_details.Push }}</p>
+            <p>Pull Exercise: {{ workout_details.Pull }}</p>
+            <p>Leg Exercise: {{ workout_details.Legs }}</p>
+        {% endif %}
     </div>
 </body>
 </html>
-
