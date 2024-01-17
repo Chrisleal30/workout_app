@@ -1,5 +1,6 @@
 from flask import Flask, render_template
 from datetime import datetime, timedelta
+from pytz import timezone
 
 
 app = Flask(__name__)
@@ -51,11 +52,11 @@ push_up_progression = [
 
 pull_up_progression = [
     "Wall Pull-up", "Inverted Row (low)", "Inverted Row (high)",
-    "Elevated Inverted Row", "Scapular Pull-ups", "Chair Assisted Pull-up",
+    "Elevated Inverted Row", "Scapular Pull-ups Assisted", "Scapular Pull-ups Dead-hang", "Chair Assisted Pull-up",
     "Negative Pull-up", "Jump Pull-up", "Banded Pull-up", "Pull-up"
 ]
 
-split_squat_progression = [
+pistol_squat_progression = [
     "One-leg box squat", "Raised One-leg box squat", 
     "Raised Pistol squat progression (swings)"
 ]
@@ -63,7 +64,7 @@ split_squat_progression = [
 # Initial progression stages
 current_push_up_stage = 2  # Example initial stage
 current_pull_up_stage = 4  # Example initial stage
-current_split_squat_stage = 0  # Example initial stage
+current_pistol_squat_stage = 0  # Example initial stage
 
 # Function to calculate the number of specific workout types since the start date
 def count_workout_type_since_start(workout_type, start_date, today):
@@ -73,18 +74,14 @@ def count_workout_type_since_start(workout_type, start_date, today):
             count += 1
     return count
 
-# Function to count the number of completed full body progression cycles
-def count_full_body_cycles(start_date, end_date):
-    full_body_count = count_workout_type_since_start("Full Body", start_date, end_date)
-    cycles_completed = full_body_count // len(full_body_progression)
-    return cycles_completed
+
 
 # Update the current stage of the exercise
 def update_current_stage(current_stage, progression_list):
     return (current_stage + 1) % len(progression_list)
 
 # Get the workout for a given day, including logic for advancing stages
-def get_workout_for_day(day, start_date, current_push_up_stage, current_pull_up_stage, current_split_squat_stage):
+def get_workout_for_day(day, start_date, current_push_up_stage, current_pull_up_stage, current_pistol_squat_stage):
     workout_type = workout_schedule[day.weekday()]
 
     if workout_type == "Full Body":
@@ -95,16 +92,26 @@ def get_workout_for_day(day, start_date, current_push_up_stage, current_pull_up_
         # Calculate the number of completed cycles
         completed_cycles = (count - 1) // cycle_length
 
-        # Update the stages based on the number of completed cycles
-        for i in range(completed_cycles):
-            current_push_up_stage = update_current_stage(current_push_up_stage, push_up_progression)
-            current_pull_up_stage = update_current_stage(current_pull_up_stage, pull_up_progression)
-            current_split_squat_stage = update_current_stage(current_split_squat_stage, split_squat_progression)
+        #Exercise cycle length
+        push_up_cycle_length = len(push_up_progression)
+        pull_up_cycle_length = len(pull_up_progression)
+        pistol_squat_cycle_length = len(pistol_squat_progression)
+        
+        # Initial progression stages
+        i_push_up_stage = 2  # Example initial stage
+        i_pull_up_stage = 4  # Example initial stage
+        i_pistol_squat_stage = 0  # Example initial stage
+        
+        #Exercise stage index (The number of cycles completed + the initial exercise stage) 
+        current_push_up_stage = (completed_cycles + i_push_up_stage) % push_up_cycle_length
+        current_pull_up_stage = (completed_cycles + i_pull_up_stage) % pull_up_cycle_length
+        current_pistol_squat_stage = (completed_cycles + i_pistol_squat_stage) % pistol_squat_cycle_length
+        
 
         sets_reps = full_body_progression[index]
         push_exercise = push_up_progression[current_push_up_stage]
         pull_exercise = pull_up_progression[current_pull_up_stage]
-        leg_exercise = split_squat_progression[current_split_squat_stage]
+        leg_exercise = pistol_squat_progression[current_pistol_squat_stage]
 
         workout_details = {
             'sets_reps': sets_reps,
@@ -121,29 +128,28 @@ def get_workout_for_day(day, start_date, current_push_up_stage, current_pull_up_
     else:
         workout_details = None  # No details for rest days
 
-    return workout_type, workout_details, current_push_up_stage, current_pull_up_stage, current_split_squat_stage
+    return workout_type, workout_details, current_push_up_stage, current_pull_up_stage, current_pistol_squat_stage
 
 @app.route('/')
 def index():
-    global current_push_up_stage, current_pull_up_stage, current_split_squat_stage
+    global current_push_up_stage, current_pull_up_stage, current_pistol_squat_stage
     
-    today = datetime.now() + timedelta(days=14)
+    cst = timezone('US/Central')
+    today = datetime.now(cst).date() + timedelta(days=0)
 
     # Determine workout type for today without affecting progression stages
     workout_type_for_today = workout_schedule[today.weekday()]
     
     if workout_type_for_today == "Full Body":
-        start_date = datetime(2023, 12, 20)  # Start date for Full Body
+        start_date = cst.localize(datetime(2023, 12, 20)).date()  # Start date for Full Body
     elif workout_type_for_today == "Endurance":
-        start_date = datetime(2023, 12, 28)  # Start date for Endurance
+        start_date = cst.localize(datetime(2023, 12, 28)).date()  # Start date for Endurance
     else:
-        start_date = datetime(2023, 12, 20)  # Default start date or handle differently for Rest Days
+        start_date = cst.localize(datetime(2023, 12, 20)).date()  # Default start date or handle differently for Rest Days
 
-    workout_type, workout_details, current_push_up_stage, current_pull_up_stage, current_split_squat_stage = get_workout_for_day(today, start_date, current_push_up_stage, current_pull_up_stage, current_split_squat_stage)
+    workout_type, workout_details, current_push_up_stage, current_pull_up_stage, current_pistol_squat_stage = get_workout_for_day(today, start_date, current_push_up_stage, current_pull_up_stage, current_pistol_squat_stage)
 
     return render_template('index.html', date=today.strftime("%Y-%m-%d"), workout_type=workout_type, workout_details=workout_details)
 
 if __name__ == '__main__':
     app.run()
-
-
