@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,45 +16,141 @@
             margin: 0;
             padding: 2rem;
             color: white;
-            font-family: 'OCRA', 'Courier New', monospace; /* OCR-A with fallbacks */
+            font-family: 'OCRA', 'Courier New', monospace;
+            /* OCR-A with fallbacks */
             font-size: 1.2rem;
-            font-weight: normal; /* Adjust as needed */
+            font-weight: normal;
+            /* Adjust as needed */
         }
-        h2, h3 {
+
+        h2,
+        h3 {
             font-size: 1.5rem;
         }
-        p, li {
+
+        p,
+        li {
             font-size: 1.2rem;
         }
+
         ul {
             padding-left: 20px;
-            list-style-type: none; /* Removes bullet points */
+            list-style-type: none;
+            /* Removes bullet points */
         }
+
         li {
-            margin-bottom: 0.5rem; /* Optional: Adds spacing between list items */
+            margin-bottom: 0.5rem;
+            /* Optional: Adds spacing between list items */
         }
+
         ::selection {
             background: #FF8503;
             color: black;
         }
+
+        /* Style for hiding the adjust buttons initially */
+        .adjust-buttons {
+            display: none;
+        }
     </style>
+    <script>
+        function adjustStage(stage, direction) {
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", "/adjust_stage/" + stage + "/" + direction, true);
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    location.reload(); // Reload the page
+                }
+            }
+            xhr.send();
+        }
+
+        function toggleEditMode() {
+            var adjustButtons = document.getElementsByClassName('adjust-buttons');
+            var isEditMode = localStorage.getItem('editMode') === 'true'; // Retrieve the stored state
+
+            for (var i = 0; i < adjustButtons.length; i++) {
+                adjustButtons[i].style.display = isEditMode ? 'none' : 'block';
+            }
+
+            // Update the stored state
+            localStorage.setItem('editMode', !isEditMode);
+        }
+
+        // Call this function on page load to set the correct state
+        function initializeEditMode() {
+            var isEditMode = localStorage.getItem('editMode') === 'true';
+            var adjustButtons = document.getElementsByClassName('adjust-buttons');
+
+            for (var i = 0; i < adjustButtons.length; i++) {
+                adjustButtons[i].style.display = isEditMode ? 'block' : 'none';
+            }
+        }
+
+        // Call the initialization function when the page loads
+        document.addEventListener('DOMContentLoaded', initializeEditMode);
+
+    </script>
 </head>
+
 <body>
     <div>
         <h2>Today's Workout</h2>
         <p><strong>Date:</strong> {{ date }}</p>
         <p><strong>Type:</strong> {{ workout_type }}</p>
-        {% if workout_type == "Rest Day" %}
-            <p>Good Work</p>
+        {% if workout_type == "Full Body" %}
+        <p><strong>Sets and Reps:</strong> {{ workout_details.sets_reps }}</p>
+        <h3>Exercise Breakdown:</h3>
+        <p>Push Exercise: {{ workout_details.Push }}</p>
+        <p>Pull Exercise: {{ workout_details.Pull }}</p>
+        <p>Leg Exercise: {{ workout_details.Legs }}</p>
         {% elif workout_type == 'Endurance' %}
-            <p><strong>Exercise:</strong> {{ workout_details }}<p>
-        {% else %}
-            <p><strong>Sets and Reps:</strong> {{ workout_details.sets_reps }}</p>
-            <h3>Exercise Breakdown:</h3>
-            <p>Push Exercise: {{ workout_details.Push }}</p>
-            <p>Pull Exercise: {{ workout_details.Pull }}</p>
-            <p>Leg Exercise: {{ workout_details.Legs }}</p>
+        <p><strong>Exercise:</strong> {{ workout_details }}
+        <p>
+            {% else %}
+        <p>Good Work</p>
         {% endif %}
     </div>
+
+    <!-- Edit Mode Toggle Button -->
+    <button id="editModeToggle" onclick="toggleEditMode()">Edit Mode</button>
+
+    <!-- Increment/Decrement Buttons -->
+    <div class="adjust-buttons">
+        {% if workout_type == 'Full Body' %}
+        <div>
+            <span>Sets and Reps:</span>
+            <button onclick="adjustStage('full_body', 'decrement')">Back</button>
+            <button onclick="adjustStage('full_body', 'increment')">Forward</button>
+        </div>
+        <div>
+            <span>Push Exercise:</span>
+            <button onclick="adjustStage('push', 'decrement')">Back</button>
+            <button onclick="adjustStage('push', 'increment')">Forward</button>
+        </div>
+        <div>
+            <span>Pull Exercise:</span>
+            <button onclick="adjustStage('pull', 'decrement')">Back</button>
+            <button onclick="adjustStage('pull', 'increment')">Forward</button>
+        </div>
+        <div>
+            <span>Leg Exercise: </span>
+            <button onclick="adjustStage('legs', 'decrement')">Back</button>
+            <button onclick="adjustStage('legs', 'increment')">Forward</button>
+        </div>
+        {% elif workout_type == 'Endurance' %}
+        <div>
+            <span>Exercise:</span>
+            <button onclick="adjustStage('endurance', 'decrement')">Back</button>
+            <button onclick="adjustStage('endurance', 'increment')">Forward</button>
+        </div>
+        {% else %}
+        <div>
+            <span>N/A</span>
+        </div>
+        {% endif %}
+
 </body>
+
 </html>
