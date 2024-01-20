@@ -153,7 +153,7 @@ def adjust_stage(stage, direction):
         'pull': 'change_pull_up_stage',
         'legs': 'change_pistol_squat_stage',
         'full_body': 'change_full_body_progression',
-        'endurance': 'change_endurance"progression'
+        'endurance': 'change_endurance_progression'
     }
 
     # Adjust the stage
@@ -173,7 +173,7 @@ def index():
     global current_push_up_stage, current_pull_up_stage, current_pistol_squat_stage
     
     cst = timezone('US/Central')
-    today = datetime.now(cst).date() + timedelta(days=2)
+    today = datetime.now(cst).date() + timedelta(days=5)
 
     # Determine workout type for today without affecting progression stages
     workout_type_for_today = workout_schedule[today.weekday()]
