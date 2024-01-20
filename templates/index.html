@@ -36,7 +36,30 @@
             background: #FF8503;
             color: black;
         }
+        /* Style for hiding the adjust buttons initially */
+        .adjust-buttons {
+            display: none;
+        }
     </style>
+    <script>
+        function adjustStage(stage, direction) {
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", "/adjust_stage/" + stage + "/" + direction, true);
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    location.reload(); // Reload the page
+                }
+            }
+            xhr.send();
+        }
+        
+        function toggleEditMode() {
+            var adjustButtons = document.getElementsByClassName('adjust-buttons');
+            for (var i = 0; i < adjustButtons.length; i++) {
+                adjustButtons[i].style.display = adjustButtons[i].style.display === 'none' ? 'block' : 'none';
+            }
+        }
+    </script>
 </head>
 <body>
     <div>
@@ -55,5 +78,26 @@
             <p>Leg Exercise: {{ workout_details.Legs }}</p>
         {% endif %}
     </div>
+    
+    <!-- Edit Mode Toggle Button -->
+    <button id="editModeToggle" onclick="toggleEditMode()">Edit Mode</button>
+    
+    <!-- Increment/Decrement Buttons -->
+    <div class="adjust-buttons">
+        <div>
+            <span>Push Exercise: {{ workout_details.Push }}</span>
+            <button onclick="adjustStage('push', 'increment')">+</button>
+            <button onclick="adjustStage('push', 'decrement')">-</button>
+        </div>
+        <div>
+            <span>Pull Exercise: {{ workout_details.Pull }}</span>
+            <button onclick="adjustStage('pull', 'increment')">+</button>
+            <button onclick="adjustStage('pull', 'decrement')">-</button>
+        </div>
+        <div>
+            <span>Leg Exercise: {{ workout_details.Legs }}</span>
+            <button onclick="adjustStage('legs', 'increment')">+</button>
+            <button onclick="adjustStage('legs', 'decrement')">-</button>
+        </div>
 </body>
 </html>
