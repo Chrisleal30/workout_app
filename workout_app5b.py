@@ -173,7 +173,7 @@ def index():
     global current_push_up_stage, current_pull_up_stage, current_pistol_squat_stage
     
     cst = timezone('US/Central')
-    today = datetime.now(cst).date() + timedelta(days=5)
+    today = datetime.now(cst).date() + timedelta(days=0)
 
     # Determine workout type for today without affecting progression stages
     workout_type_for_today = workout_schedule[today.weekday()]
